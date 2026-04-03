@@ -10,20 +10,21 @@ router.get('/stats', (req, res) => {
 
 router.get('/', (req, res) => {
   const { status, page, limit } = req.query;
-
+  
+  let tasks = taskService.getAll();
+  
   if (status) {
-    const tasks = taskService.getByStatus(status);
-    return res.json(tasks);
+    tasks = tasks.filter(t => t.status === status);
   }
 
   if (page !== undefined || limit !== undefined) {
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
-    const tasks = taskService.getPaginated(pageNum, limitNum);
-    return res.json(tasks);
+
+    const offset = (pageNum - 1) * limitNum;
+    tasks = tasks.slice(offset, offset + limitNum);
   }
 
-  const tasks = taskService.getAll();
   res.json(tasks);
 });
 
